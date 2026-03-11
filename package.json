@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "bytez.js": "^3.0.0",
     "framer-motion": "^12.35.2",
     "lottie-react": "^2.4.1",
     "react": "^19.2.0",

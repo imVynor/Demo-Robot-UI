@@ -2,8 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 export const RobotGlow = ({ robotState }) => {
-  const mode = typeof robotState === 'string' ? robotState : (robotState?.mode || "Idle");
-
   const glowVariants = {
     Idle: { scale: 1, opacity: 0.2, backgroundColor: "#4F9CF9" },
     Listening: { scale: 1.2, opacity: 0.5, backgroundColor: "#7FDBFF" },
@@ -16,7 +14,7 @@ export const RobotGlow = ({ robotState }) => {
   return (
     <motion.div
       className="glow"
-      animate={mode}
+      animate={robotState}
       variants={glowVariants}
       transition={{
         scale: { duration: 2, repeat: Infinity, repeatType: "reverse" },
