@@ -95,7 +95,7 @@ body {
   opacity: 0.8;
 }
 
-/* Status Text */
+
 .status-container {
   position: absolute;
   top: 40px;
@@ -118,7 +118,7 @@ body {
   color: var(--white);
 }
 
-/* Robot Face */
+
 .robot-container {
   position: relative;
   display: flex;
@@ -228,7 +228,7 @@ body {
   filter: drop-shadow(0 0 8px var(--primary-blue));
 }
 
-/* Question Mark */
+
 .question-mark-container {
   position: absolute;
   top: 0;
@@ -241,7 +241,7 @@ body {
   text-shadow: 0 0 20px var(--soft-cyan);
 }
 
-/* Audio Visualizer */
+
 .visualizer-container {
   display: flex;
   align-items: center;
@@ -266,7 +266,7 @@ body {
   box-shadow: 0 0 10px var(--soft-cyan);
 }
 
-/* Mic Button */
+
 .mic-button-container {
   position: relative;
   margin-top: 40px;
@@ -317,7 +317,7 @@ body {
   z-index: 1;
 }
 
-/* Error Message */
+
 .error-message {
   position: absolute;
   bottom: 40px;
@@ -329,7 +329,7 @@ body {
   border: 1px solid rgba(255, 75, 43, 0.3);
 }
 
-/* Responsive Design */
+
 @media (max-width: 1024px) {
   .transcript-panel {
     width: 300px;

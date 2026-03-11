@@ -4,11 +4,7 @@ const GOOGLE_TTS_API_KEY = import.meta.env.VITE_GOOGLE_TTS_API_KEY;
 const GOOGLE_TTS_URL = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_API_KEY}`;
 
 export class TTSService {
-  /**
-   * Synthesize text to speech using Google Cloud TTS.
-   * @param {string} text - The text to be synthesized.
-   * @returns {Promise<string>} - The audio URL in Base64.
-   */
+
   async synthesizeSpeech(text) {
     try {
       const payload = {
@@ -49,11 +45,6 @@ export class TTSService {
     }
   }
 
-  /**
-   * Play the synthesized audio and return a promise that resolves when finished.
-   * @param {string} audioUrl 
-   * @returns {Promise<void>}
-   */
   async playAudio(audioUrl) {
     return new Promise((resolve, reject) => {
       const audio = new Audio(audioUrl);

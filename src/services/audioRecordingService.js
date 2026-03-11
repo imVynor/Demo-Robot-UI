@@ -1,6 +1,4 @@
-/**
- * Handles recording audio from the microphone using the MediaRecorder API.
- */
+
 export class AudioRecordingService {
     constructor() {
         this.mediaRecorder = null;
@@ -8,9 +6,7 @@ export class AudioRecordingService {
         this.stream = null;
     }
 
-    /**
-     * Start recording audio.
-     */
+
     async start() {
         try {
             this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -31,10 +27,6 @@ export class AudioRecordingService {
         }
     }
 
-    /**
-     * Stop recording and return the audio data as a base64 string.
-     * @returns {Promise<string>} Base64 encoded audio string.
-     */
     async stop() {
         return new Promise((resolve, reject) => {
             if (!this.mediaRecorder) {
@@ -46,10 +38,10 @@ export class AudioRecordingService {
                 console.log("[Audio] Recording stopped.");
                 const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
 
-                // Clean up stream
+                
                 this.stream.getTracks().forEach(track => track.stop());
 
-                // Convert Blob to base64
+                
                 const reader = new FileReader();
                 reader.readAsDataURL(audioBlob);
                 reader.onloadend = () => {

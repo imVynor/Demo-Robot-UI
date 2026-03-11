@@ -21,7 +21,7 @@ function App() {
     document.title = "Chitti";
   }, []);
 
-  // Auto-scroll transcript to bottom
+  
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation]);

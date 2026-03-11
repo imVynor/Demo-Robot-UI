@@ -4,7 +4,7 @@ import { motion, useSpring } from 'framer-motion';
 export const RobotEyes = ({ mode, emotion }) => {
   const [isInteractive, setIsInteractive] = useState(window.innerWidth > 768);
 
-  // Smooth mouse movement using springs
+  
   const springConfig = { stiffness: 150, damping: 20 };
   const mouseX = useSpring(0, springConfig);
   const mouseY = useSpring(0, springConfig);
@@ -13,11 +13,11 @@ export const RobotEyes = ({ mode, emotion }) => {
     const handleResize = () => setIsInteractive(window.innerWidth > 768);
     const handleMouseMove = (e) => {
       if (mode === 'Idle' && isInteractive) {
-        // Calculate normalized position (-1 to 1) relative to center of screen
+        
         const x = (e.clientX / window.innerWidth) * 2 - 1;
         const y = (e.clientY / window.innerHeight) * 2 - 1;
 
-        // Increased range to +/- 20px for better visibility
+        
         mouseX.set(x * 20);
         mouseY.set(y * 20);
       } else {

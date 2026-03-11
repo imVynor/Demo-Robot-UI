@@ -1,12 +1,3 @@
-/**
- * Handles browser-based speech recognition using the Web Speech API.
- *
- * A fresh SpeechRecognition instance is created on every listen() call —
- * browsers don't reliably allow reuse of a stopped instance.
- * A `settled` flag prevents the double-resolve race caused by stop() → onend.
- * The 2-second silence timer only starts after the first speech arrives.
- */
-
 const SpeechRecognitionAPI =
   typeof window !== "undefined"
     ? window.SpeechRecognition || window.webkitSpeechRecognition
@@ -18,11 +9,6 @@ export class SpeechRecognitionService {
     this._silenceTimer = null;
   }
 
-  /**
-   * Start listening for voice input.
-   * Waits for 2 seconds of silence after the last detected speech, then resolves.
-   * @returns {Promise<string>} The transcribed text.
-   */
   listen() {
     return new Promise((resolve, reject) => {
       if (!SpeechRecognitionAPI) {
@@ -30,17 +16,17 @@ export class SpeechRecognitionService {
         return;
       }
 
-      // Abort any previous session cleanly before starting a new one
+      
       this._abortCurrent();
 
       let finalTranscript = "";
-      let settled = false; // Prevents double-resolve/reject
+      let settled = false; 
 
       const done = (transcript) => {
         if (settled) return;
         settled = true;
         this._clearSilenceTimer();
-        // Stop the recognition — this will fire onend, but settled=true guards it
+        
         try { recognition.stop(); } catch (_) { }
         this._activeRecognition = null;
         resolve(transcript.trim());
@@ -60,7 +46,7 @@ export class SpeechRecognitionService {
         this._silenceTimer = setTimeout(() => {
           console.log("[Speech] Silence timeout — finalizing transcript.");
           done(finalTranscript);
-        }, 2000); // 2 seconds of silence = done speaking
+        }, 2000); 
       };
 
       const recognition = new SpeechRecognitionAPI();
@@ -76,23 +62,23 @@ export class SpeechRecognitionService {
           }
         }
         console.log("[Speech] Transcript so far:", finalTranscript.trim());
-        // Reset silence timer on every speech chunk (final or interim)
+        
         resetSilenceTimer();
       };
 
       recognition.onerror = (event) => {
         console.error("[Speech] Error:", event.error);
         if (event.error === "no-speech") {
-          // If we already have something, just finish — don't error
+          
           if (finalTranscript.trim()) {
             done(finalTranscript);
           } else {
             fail(new Error("no-speech"));
           }
         } else if (event.error === "aborted") {
-          // Intentionally aborted (e.g. stop() called) — not an error
+          
           if (finalTranscript.trim()) done(finalTranscript);
-          // else just let it settle silently
+          
         } else {
           fail(new Error(event.error));
         }
@@ -100,7 +86,7 @@ export class SpeechRecognitionService {
 
       recognition.onend = () => {
         console.log("[Speech] Recognition ended.");
-        // If ended unexpectedly (e.g. browser timeout), resolve with what we have
+        
         done(finalTranscript);
       };
 
@@ -109,9 +95,7 @@ export class SpeechRecognitionService {
     });
   }
 
-  /**
-   * Manually stop listening and resolve with whatever was captured so far.
-   */
+
   stop() {
     this._abortCurrent();
   }

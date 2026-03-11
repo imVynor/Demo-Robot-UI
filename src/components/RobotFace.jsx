@@ -23,7 +23,7 @@ export const RobotFace = ({ robotState }) => {
     mass: 0.8
   };
 
-  // Determine active animation variant
+  
   const activeVariant = mode === 'Talking' ? 'Talking' :
     (emotion === 'happy' ? 'Happy' :
       (emotion === 'confused' ? 'Confused' : mode));

@@ -3,11 +3,6 @@ import { AI_CONFIG } from "../config/aiConfig";
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 export class GeminiService {
-  /**
-   * Generate robot response from audio input.
-   * @param {string} audioBase64 - Base64 encoded audio data.
-   * @returns {Promise<{text: string, transcript: string}>} - The robot's response and what it heard.
-   */
   async generateRobotResponse(audioBase64) {
     let lastError = null;
 
@@ -42,7 +37,6 @@ export class GeminiService {
 
         if (!response.ok) {
           const errorData = await response.json();
-          // If quota exceeded or limit reached, try the next model
           if (response.status === 429 || errorData.error?.message?.toLowerCase().includes("quota") || errorData.error?.message?.toLowerCase().includes("credit")) {
             console.warn(`Model ${model} reached limit, trying next...`);
             lastError = errorData.error?.message;
@@ -58,8 +52,6 @@ export class GeminiService {
           throw new Error("No response generated from Gemini");
         }
 
-        // Parse emotion, transcript and actual response using refined regex
-        // Format expected: [emotion] [TRANSCRIPT: what heard] Actual Response
         const emotionMatch = rawResponse.match(/^\[(happy|confused|neutral)\]/i);
         const emotion = emotionMatch ? emotionMatch[1].toLowerCase() : "neutral";
 
@@ -67,11 +59,10 @@ export class GeminiService {
         const transcript = transcriptMatch ? transcriptMatch[1].trim() : "Unable to transcribe";
 
         let botResponse = rawResponse
-          .replace(/^\[.*?\]\s*/, "") // Remove emotion tag
-          .replace(/\[TRANSCRIPT:.*?\]\s*/i, "") // Remove transcript tag
+          .replace(/^\[.*?\]\s*/, "")
+          .replace(/\[TRANSCRIPT:.*?\]\s*/i, "")
           .trim();
 
-        // Final fallback for transcription if Gemini is being stubborn
         if (transcript === "Unable to transcribe" && botResponse.toLowerCase().includes("i heard you say")) {
           const match = botResponse.match(/i heard you say\s*"(.*?)"/i);
           if (match) return { text: botResponse, transcript: match[1], emotion };
@@ -81,15 +72,13 @@ export class GeminiService {
       } catch (error) {
         console.error(`Attempt with model failed:`, error);
         lastError = error.message;
-        // Continue to next model if it's a quota issue
         if (error.message?.toLowerCase().includes("quota") || error.message?.toLowerCase().includes("limit")) {
           continue;
         }
-        throw error; // Re-throw if it's a fatal non-quota error
+        throw error;
       }
     }
 
-    // if loop completes, all models failed
     throw new Error(`Out of credits/quota for all models. Last error: ${lastError}`);
   }
 }
