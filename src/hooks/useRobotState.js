@@ -5,10 +5,13 @@ import { useState, useCallback } from "react";
  * Possible states: "Idle", "Listening", "Thinking", "Talking", "Happy", "Confused"
  */
 export const useRobotState = () => {
-  const [robotState, setRobotState] = useState("Idle");
+  const [robotState, setRobotState] = useState({ mode: "Idle", emotion: "neutral" });
 
   const transitionTo = useCallback((nextState) => {
-    setRobotState(nextState);
+    setRobotState(prev => ({
+      ...prev,
+      ...(typeof nextState === 'string' ? { mode: nextState } : nextState)
+    }));
   }, []);
 
   return {

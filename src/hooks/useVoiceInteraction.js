@@ -15,7 +15,7 @@ export const useVoiceInteraction = (onStateChange) => {
     try {
       setError(null);
       setIsRecording(true);
-      if (onStateChange) onStateChange("Listening");
+      if (onStateChange) onStateChange({ mode: "Listening" });
 
       // 1. Start recording audio
       await audioRecordingService.start();
@@ -27,7 +27,7 @@ export const useVoiceInteraction = (onStateChange) => {
       console.error("Voice interaction error (start):", err);
       setIsRecording(false);
       setError("Unable to access microphone.");
-      if (onStateChange) onStateChange("Idle");
+      if (onStateChange) onStateChange({ mode: "Idle" });
     }
   }, [onStateChange]);
 
@@ -37,35 +37,37 @@ export const useVoiceInteraction = (onStateChange) => {
   const stopVoiceInteraction = useCallback(async () => {
     try {
       setIsRecording(false);
-      if (onStateChange) onStateChange("Thinking");
+      if (onStateChange) onStateChange({ mode: "Thinking" });
 
       // 1. Get audio data (base64)
       const audioBase64 = await audioRecordingService.stop();
 
       // 2. Send to Gemini for multimodal response
-      const { text: robotResponse, transcript: userTranscript } =
+      const { text: robotResponse, transcript: userTranscript, emotion } =
         await geminiService.generateRobotResponse(audioBase64);
 
       // 3. Update conversation history
       setConversation((prev) => [
         ...prev,
         { role: "user", text: userTranscript },
-        { role: "robot", text: robotResponse }
+        { role: "robot", text: robotResponse, emotion }
       ]);
 
-      // 4. Send to TTS for speech synthesis
-      if (onStateChange) onStateChange("Talking");
+      // 4. Send to TTS for speech synthesis and set state
+      // We keep the emotion while talking!
+      if (onStateChange) onStateChange({ mode: "Talking", emotion });
+
       const audioUrl = await ttsService.synthesizeSpeech(robotResponse);
 
       // 5. Play audio and wait for it to finish
       await ttsService.playAudio(audioUrl);
 
       // 6. Return to Idle
-      if (onStateChange) onStateChange("Idle");
+      if (onStateChange) onStateChange({ mode: "Idle", emotion: "neutral" });
     } catch (err) {
       console.error("Voice interaction error (stop):", err);
       setError("Sorry, I couldn't process that. Please try again.");
-      if (onStateChange) onStateChange("Idle");
+      if (onStateChange) onStateChange({ mode: "Idle" });
     }
   }, [onStateChange]);
 

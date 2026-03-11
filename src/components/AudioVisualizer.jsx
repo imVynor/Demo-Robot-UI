@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 export const AudioVisualizer = ({ robotState }) => {
+  const mode = typeof robotState === 'string' ? robotState : (robotState?.mode || "Idle");
+
   const barVariants = {
     Talking: (i) => ({
       height: [10, 30, 10],
@@ -20,6 +22,8 @@ export const AudioVisualizer = ({ robotState }) => {
       },
     }),
     Idle: { height: 5 },
+    Happy: { height: 8 },
+    Confused: { height: 5 },
     Thinking: (i) => ({
       scale: [1, 1.5, 1],
       opacity: [0.3, 1, 0.3],
@@ -31,7 +35,7 @@ export const AudioVisualizer = ({ robotState }) => {
     })
   };
 
-  if (robotState === 'Thinking') {
+  if (mode === 'Thinking') {
     return (
       <div className="visualizer-container">
         {[0, 1, 2].map((i) => (
@@ -54,7 +58,7 @@ export const AudioVisualizer = ({ robotState }) => {
           key={i}
           className="visualizer-bar"
           custom={i}
-          animate={robotState}
+          animate={mode}
           variants={barVariants}
         />
       ))}

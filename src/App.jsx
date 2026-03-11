@@ -31,7 +31,7 @@ function App() {
       <div className="main-content">
         <div className="status-container">
           <div className="status-label">Robot State</div>
-          <div className="status-value">{robotState}</div>
+          <div className="status-value">{robotState.mode}</div>
         </div>
 
         <RobotFace robotState={robotState} />
@@ -42,7 +42,7 @@ function App() {
           isRecording={isRecording}
           onStart={startVoiceInteraction}
           onStop={stopVoiceInteraction}
-          disabled={robotState === 'Thinking' || robotState === 'Talking'}
+          disabled={robotState.mode === 'Thinking' || robotState.mode === 'Talking'}
         />
 
         {error && (

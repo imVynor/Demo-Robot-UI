@@ -1,83 +1,148 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, useSpring } from 'framer-motion';
 
-export const RobotEyes = ({ robotState }) => {
+export const RobotEyes = ({ mode, emotion }) => {
+  const [isInteractive, setIsInteractive] = useState(window.innerWidth > 768);
+
+  // Smooth mouse movement using springs
+  const springConfig = { stiffness: 150, damping: 20 };
+  const mouseX = useSpring(0, springConfig);
+  const mouseY = useSpring(0, springConfig);
+
+  useEffect(() => {
+    const handleResize = () => setIsInteractive(window.innerWidth > 768);
+    const handleMouseMove = (e) => {
+      if (mode === 'Idle' && isInteractive) {
+        // Calculate normalized position (-1 to 1) relative to center of screen
+        const x = (e.clientX / window.innerWidth) * 2 - 1;
+        const y = (e.clientY / window.innerHeight) * 2 - 1;
+
+        // Increased range to +/- 20px for better visibility
+        mouseX.set(x * 20);
+        mouseY.set(y * 20);
+      } else {
+        mouseX.set(0);
+        mouseY.set(0);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [mode, isInteractive, mouseX, mouseY]);
+
   const eyesVariants = {
-    Idle: { scale: 1, y: 0 },
-    Listening: { scale: 1.15, y: 0 },
-    Thinking: { scale: 1, y: -25 },
-    Talking: { scale: 1.05, y: 0 },
-    Happy: { scale: 1.1, y: -5 },
-    Confused: { scale: 1, y: 0 }
+    neutral: { scale: 1, y: 0 },
+    happy: { scale: 1.1, y: -5 },
+    confused: { scale: 1, y: 0 }
   };
 
-  const pupilWander = {
-    x: [0, Math.random() * 10 - 5, 0],
-    y: [0, Math.random() * 10 - 5, 0],
+  const eyebrowVariantsLeft = {
+    neutral: { y: 0, rotate: 0, opacity: 1 },
+    happy: { y: -10, rotate: -15, opacity: 1 },
+    confused: { y: -15, rotate: -10, opacity: 1 },
+    Thinking: { y: -5, rotate: 5, opacity: 1 }
+  };
+
+  const eyebrowVariantsRight = {
+    neutral: { y: 0, rotate: 0, opacity: 1 },
+    happy: { y: -10, rotate: 15, opacity: 1 },
+    confused: { y: 5, rotate: 10, opacity: 1 },
+    Thinking: { y: -5, rotate: -5, opacity: 1 }
+  };
+
+  const modeVariants = {
+    Listening: { scale: 1.15 },
+    Thinking: { y: -25 },
+    Talking: { scale: 1.05 }
   };
 
   return (
     <motion.div
       className="eyes-container"
-      animate={robotState}
+      animate={emotion}
       variants={eyesVariants}
       transition={{ type: "spring", stiffness: 100, damping: 10 }}
     >
-      <div className="eye">
+      {/* Left Eye Wrapper */}
+      <div className="eye-wrapper">
         <motion.div
-          className="pupil"
-          animate={{
-            ...pupilWander,
-            scaleY: [1, 0.1, 1],
-          }}
-          transition={{
-            x: { duration: 5, repeat: Infinity },
-            y: { duration: 5, repeat: Infinity },
-            scaleY: {
-              duration: 0.5,
-              repeat: Infinity,
-              repeatDelay: Math.random() * 5 + 3,
-            },
-          }}
+          className="eyebrow"
+          animate={mode === 'Thinking' ? 'Thinking' : emotion}
+          variants={eyebrowVariantsLeft}
+          transition={{ type: "spring", stiffness: 120, damping: 15 }}
         />
-        {robotState === 'Happy' && (
+        <motion.div
+          className="eye"
+          animate={mode === 'Thinking' ? modeVariants.Thinking : {}}
+        >
           <motion.div
-            className="sparkle"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1.2 }}
-            exit={{ opacity: 0, scale: 0 }}
+            className="pupil"
+            style={{ x: mouseX, y: mouseY }}
+            animate={{
+              scaleY: [1, 0.1, 1],
+            }}
+            transition={{
+              scaleY: {
+                duration: 0.5,
+                repeat: Infinity,
+                repeatDelay: Math.random() * 5 + 3,
+              },
+            }}
           />
-        )}
+          {emotion === 'happy' && (
+            <motion.div
+              className="sparkle"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1.2 }}
+              exit={{ opacity: 0, scale: 0 }}
+            />
+          )}
+        </motion.div>
       </div>
-      <motion.div 
-        className="eye"
-        animate={robotState === 'Confused' ? { scaleY: 0.6 } : { scaleY: 1 }}
-      >
+
+      {/* Right Eye Wrapper */}
+      <div className="eye-wrapper">
         <motion.div
-          className="pupil"
-          animate={{
-            ...pupilWander,
-            scaleY: [1, 0.1, 1],
-          }}
-          transition={{
-            x: { duration: 5, repeat: Infinity },
-            y: { duration: 5, repeat: Infinity },
-            scaleY: {
-              duration: 0.5,
-              repeat: Infinity,
-              repeatDelay: Math.random() * 5 + 4,
-            },
-          }}
+          className="eyebrow"
+          animate={mode === 'Thinking' ? 'Thinking' : emotion}
+          variants={eyebrowVariantsRight}
+          transition={{ type: "spring", stiffness: 120, damping: 15 }}
         />
-        {robotState === 'Happy' && (
+        <motion.div
+          className="eye"
+          animate={{
+            ...(mode === 'Thinking' ? modeVariants.Thinking : {}),
+            ...(emotion === 'confused' ? { scaleY: 0.6 } : { scaleY: 1 })
+          }}
+        >
           <motion.div
-            className="sparkle"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1.2 }}
-            exit={{ opacity: 0, scale: 0 }}
+            className="pupil"
+            style={{ x: mouseX, y: mouseY }}
+            animate={{
+              scaleY: [1, 0.1, 1],
+            }}
+            transition={{
+              scaleY: {
+                duration: 0.5,
+                repeat: Infinity,
+                repeatDelay: Math.random() * 5 + 4,
+              },
+            }}
           />
-        )}
-      </motion.div>
+          {emotion === 'happy' && (
+            <motion.div
+              className="sparkle"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1.2 }}
+              exit={{ opacity: 0, scale: 0 }}
+            />
+          )}
+        </motion.div>
+      </div>
     </motion.div>
   );
 };
