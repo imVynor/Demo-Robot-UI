@@ -338,7 +338,7 @@ body {
 
 @media (max-width: 768px) {
   .app {
-    flex-direction: column-reverse;
+    flex-direction: column;
   }
 
   .transcript-panel {
